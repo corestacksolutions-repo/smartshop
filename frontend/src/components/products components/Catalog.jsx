@@ -1,8 +1,6 @@
 import { useParams } from "react-router-dom";
 import ProductCard from "../home components/product card";
-
 import client from "../../utils/sanityClient";
-
 import { useState, useEffect } from "react";
 
 const ProductCatalog = () => {
@@ -12,58 +10,46 @@ const ProductCatalog = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const query =
-      !slug || slug === "shop"
-        ? `
-          *[_type == "product"] | order(_createdAt desc){
-            _id,
+    const query = `
+      *[
+        _type == "product" &&
+        (
+          $slug == "shop" ||
+          !defined($slug) ||
+          category->slug.current == $slug
+        )
+      ] | order(_createdAt desc){
+        _id,
 
-            name,
-            slug,
+        name,
 
-            featured,
-            rating,
+        slug{
+          current
+        },
 
-            price,
-            oldPrice,
+        featured,
+        rating,
 
-            "image": images[0].asset->url,
+        price,
+        oldPrice,
 
-            "category": category->slug.current
-          }
-        `
-        : `
-          *[
-            _type == "product" &&
-            category->slug.current == "${slug}"
-          ] | order(_createdAt desc){
-            _id,
+        "image": images[0].asset->url,
 
-            name,
-            slug,
-
-            featured,
-            rating,
-
-            price,
-            oldPrice,
-
-            "image": images[0].asset->url,
-
-            "category": category->slug.current
-          }
-        `;
+        "category": category->name,
+        "categorySlug": category->slug.current
+      }
+    `;
 
     client
-      .fetch(query)
+      .fetch(query, {
+        slug: slug || "shop",
+      })
       .then((data) => {
-        console.log(data);
+        console.log("Products:", data);
         setProducts(data);
       })
       .catch(console.error)
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, [slug]);
 
   const pageTitle =
@@ -95,26 +81,23 @@ const ProductCatalog = () => {
           </p>
         </div>
 
-        {/* Loading State */}
         {loading ? (
           <div className="text-center py-24">
-            <h3 className="text-2xl font-semibold text-gray-700">
+            <h3 className="text-2xl font-semibold">
               Loading Products...
             </h3>
           </div>
         ) : (
           <>
-            {/* Products */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {products.map((product) => (
                 <ProductCard
-                  key={product.slug.current}
+                  key={product._id}
                   product={product}
                 />
               ))}
             </div>
 
-            {/* Empty State */}
             {products.length === 0 && (
               <div className="text-center py-24">
                 <h3 className="text-2xl font-semibold text-gray-700">
@@ -122,7 +105,7 @@ const ProductCatalog = () => {
                 </h3>
 
                 <p className="text-gray-500 mt-3">
-                  Check back later for new arrivals.
+                  Check your category slug in Sanity.
                 </p>
               </div>
             )}
