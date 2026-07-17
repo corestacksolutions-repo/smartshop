@@ -13,6 +13,8 @@ import Admin from "./pages/admin";
 import { NewOrders } from "./components/admin components/new orders";
 import { DispatchedOrders } from "./components/admin components/dispatched orders";
 import NoPageFund from "./components/no match";
+import ProtectionWrapper from "./wrappers/ProtectionWrapper";
+import Login from "./pages/Login";
 
 
 const router = createBrowserRouter(
@@ -32,15 +34,14 @@ const router = createBrowserRouter(
             path: '/receipt',
             Component: Receipt
         },
+        {path: '/login', Component: Login},
         {
             path: '/admin', 
-            Component: Admin,
-           /* children:[
-                {index: true, Component: NewOrders},
-                {path: 'new', Component: NewOrders},
-                {path: 'dispatched', Component: DispatchedOrders},
-            ]
-            */
+            element: (
+                <ProtectionWrapper>
+                    <Admin />
+                </ProtectionWrapper>
+            )
         },
         {
             path: '*',

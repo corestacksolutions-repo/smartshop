@@ -1,105 +1,341 @@
-import { useState } from "react";
-import { FiChevronDown, FiX } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 
-const OrderDetails= ({detail, closeDetails, handleCloseDetails}) =>{
-    console.log("Order details received:", detail);
+const OrderDetails = ({
+  detail,
+  handleCloseDetails,
+}) => {
+  if (!detail) return null;
 
-   
-    const date = new Date(detail.created_at);
-    const formattedDate = date.toLocaleDateString();
-    const formattedTime = date.toLocaleTimeString();
-       return(
-           <>
-            {/*OVERLAY */}
-            <div 
-                className={`
-                    ${closeDetails ? 'block' : 'hidden'}
-                    w-full 
-                    fixed
-                    h-full
-                    py-10
-                    px-5
-                    md:pt-0
-                    top-0 
-                    left-0 
-                    bg-black/80 
-                    z-10 flex 
-                    justify-center 
-                    items-center`}
-              >
-            <div className="flex flex-col overflow-auto h-[85vh] md:h-fit">
-              <article className="relative z-100  md:w-7/10 ld:w-8/10 space-y-4 shadow-lg bg-white rounded-md px-5 py-10">
-                  <button onClick={handleCloseDetails}
-                        className="absolute 
-                         top-4 right-4 
-                         bg-black text-white 
-                         p-2 rounded-full
-                         bg-black/30 
-                         bg-opacity-80"
-                         >
-                    <FiX className="text-lg" />
-                  </button>
-                  <div className="flex flex-col justify-between md:flex-row ">
-                  {/*product details */}
-                  <div className="w-full md:w-fit "> 
-                    <h1 className="mx-auto text-[20px] font-bold md:text-center my-5">
-                        Product Details
-                    </h1>
-                    <div className="w-full md:w-fi flex flex-col md:flex-row gap-4 p-2  border-t">
-                        <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1200&auto=format&fit=crop" 
-                             alt="" 
-                             className="h-60 md:h-20 rounded-md border" 
-                        /> 
-                        <div className="w-full text-[15px] text-gray-900 space-y-2">
-                          <p className="">Name  : <b className="">{detail.product_name}</b> </p>
-                          <p className="">ID  : <b className="">{detail.product_id}</b> </p>
-                          <p className="">Size  : <b className="">{detail.product_size}</b> </p>
-                          <p className="">Color : <b className="">{detail.product_color}</b> </p>
-                          <p className="">Quantity : <b className="">{detail.quantity}</b></p>
-                        </div>
- 
-                        </div>
-                    </div>
-                  {/**user details */}
-                  <div className="w-full md:w-fit"> 
-                    <h1 className="mx-auto text-[20px] font-bold  my-2 md:text-center my-5">Customer Details</h1>
-                        <div className="w-full text-[15px] text-gray-900 space-y-2 border-t p-2">
-                          <p className="">Name  : <b className="">{detail.customer_name}</b> </p>
-                          <p className="">Phone  : <b className="">{detail.customer_phone}</b> </p>
-                          <p className="">Email : <b className="">{detail.customer_email}</b> </p>
-                          <p className="">Location : <b className="">{detail.customer_location}</b></p>
-                          <p className="">Courier : <b className="">{detail.courier_service}</b></p>
-                        </div>
-                    </div>
+  const date = new Date(
+    detail.created_at
+  );
 
-                  {/**time stump */}
-                  <div className="w-full md:w-fit"> 
-                    <h1 className="mx-auto text-[20px] font-bold  my-2 md:text-center my-5">Time Stump</h1>
-                     <div className="w-full gap-4 p-2 space-y-2 border-t">
-                          <p className="">Date  : <b className="">{formattedDate}</b> </p>
-                          <p className="">Time  : <b className="">{formattedTime}</b> </p>
-                      </div>
-                    </div>
-                </div>
-                {/*Receipts/payment/delivery status */}
-                <div className="w-full inline-flex justify-between border-t py-5">
-                    <span className="inline-flex flex-wrap gap-3 text-[1.1rem]"> 
-                        Amount paid : <strong className="">{detail.amount_paid}</strong>
-                        <button className="border inline-flex items-center gap-2 px-2 bg-black text-white font-semibold">
-                            download receipt <FiChevronDown className="size-5"/>
-                        </button>
-                    </span>
-                    <span className="">
-                        Delivery : 
-                        <strong className="text-red-400">
-                          {detail.delivery_status || "Pending..."}
-                        </strong>
-                    </span>
-                </div>
-              </article>
+  const formattedDate =
+    date.toLocaleDateString();
+
+  const formattedTime =
+    date.toLocaleTimeString();
+
+  const courierNames = {
+    cts: "CTS Courier",
+    "post-express":
+      "Post Express Courier",
+    speed: "Speed Courier",
+  };
+
+  const statusColor =
+    detail.order_status === "delivered"
+      ? "text-green-600"
+      : detail.order_status ===
+        "dispatched"
+      ? "text-blue-600"
+      : "text-orange-600";
+
+  return (
+    <div
+      className="
+        fixed
+        inset-0
+        z-50
+        bg-black/70
+        backdrop-blur-sm
+        flex
+        justify-center
+        items-center
+        p-4
+      "
+    >
+      <div
+        className="
+          relative
+          bg-white
+          rounded-3xl
+          shadow-2xl
+          w-full
+          max-w-6xl
+          max-h-[90vh]
+          overflow-y-auto
+          p-8
+        "
+      >
+        {/* Close Button */}
+        <button
+          onClick={handleCloseDetails}
+          className="
+            absolute
+            top-5
+            right-5
+            bg-black
+            text-white
+            p-2
+            rounded-full
+          "
+        >
+          <FiX size={18} />
+        </button>
+
+        {/* Header */}
+        <div className="mb-8 border-b pb-6">
+          <p className="uppercase tracking-[0.25em] text-sm text-gray-400 mb-2">
+            Order Information
+          </p>
+
+          <h2 className="text-3xl font-bold">
+            Order #{detail.id}
+          </h2>
+
+          <p className="text-gray-500 mt-2">
+            Created on {formattedDate} at{" "}
+            {formattedTime}
+          </p>
+        </div>
+
+        {/* Main Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+
+          {/* PRODUCT */}
+          <div className="border rounded-2xl p-6">
+
+            <h3 className="font-bold text-xl mb-5">
+              Product Details
+            </h3>
+
+            <img
+              src={
+                detail.product_image ||
+                "https://placehold.co/500x500"
+              }
+              alt={detail.product_name}
+              className="
+                w-full
+                h-64
+                object-cover
+                rounded-xl
+                border
+                mb-5
+              "
+            />
+
+            <div className="space-y-3">
+
+              <p>
+                Product:
+                <strong className="ml-2">
+                  {detail.product_name}
+                </strong>
+              </p>
+
+              <p>
+                Brand:
+                <strong className="ml-2">
+                  {detail.product_brand}
+                </strong>
+              </p>
+
+              <p>
+                Category:
+                <strong className="ml-2 capitalize">
+                  {
+                    detail.product_category
+                  }
+                </strong>
+              </p>
+
+              <p>
+                Product ID:
+                <strong className="ml-2">
+                  {detail.product_id}
+                </strong>
+              </p>
+
+              <p>
+                Size:
+                <strong className="ml-2">
+                  {detail.product_size}
+                </strong>
+              </p>
+
+              <div className="flex items-center gap-3">
+
+                <span>Color:</span>
+
+                <div
+                  className="
+                    w-5
+                    h-5
+                    rounded-full
+                    border
+                  "
+                  style={{
+                    backgroundColor:
+                      detail.product_color_hex ||
+                      "#ccc",
+                  }}
+                />
+
+                <strong>
+                  {detail.product_color}
+                </strong>
+
+              </div>
+
+              <p>
+                Quantity:
+                <strong className="ml-2">
+                  {detail.quantity}
+                </strong>
+              </p>
+
             </div>
           </div>
-        </>
-       )
-}
+
+          {/* CUSTOMER */}
+          <div className="border rounded-2xl p-6">
+
+            <h3 className="font-bold text-xl mb-5">
+              Customer Details
+            </h3>
+
+            <div className="space-y-4">
+
+              <p>
+                Name:
+                <strong className="ml-2">
+                  {
+                    detail.customer_name
+                  }
+                </strong>
+              </p>
+
+              <p>
+                Phone:
+                <strong className="ml-2">
+                  {
+                    detail.customer_phone
+                  }
+                </strong>
+              </p>
+
+              <p>
+                Email:
+                <strong className="ml-2">
+                  {detail.customer_email ||
+                    "Not Provided"}
+                </strong>
+              </p>
+
+              <p>
+                Location:
+                <strong className="ml-2">
+                  {
+                    detail.customer_location
+                  }
+                </strong>
+              </p>
+
+              <p>
+                Courier:
+                <strong className="ml-2">
+                  {courierNames[
+                    detail
+                      .courier_service
+                  ] ||
+                    detail.courier_service}
+                </strong>
+              </p>
+
+            </div>
+          </div>
+
+          {/* PAYMENT & STATUS */}
+          <div className="border rounded-2xl p-6">
+
+            <h3 className="font-bold text-xl mb-5">
+              Order Summary
+            </h3>
+
+            <div className="space-y-4">
+
+              <p>
+                Unit Price:
+                <strong className="ml-2">
+                  MWK{" "}
+                  {Number(
+                    detail.product_price ||
+                      0
+                  ).toLocaleString()}
+                </strong>
+              </p>
+
+              <p>
+                Total Amount:
+                <strong className="ml-2">
+                  MWK{" "}
+                  {Number(
+                    detail.total_amount ||
+                      0
+                  ).toLocaleString()}
+                </strong>
+              </p>
+
+              <p>
+                Payment Status:
+                <strong className="ml-2 text-green-600">
+                  {detail.payment_status}
+                </strong>
+              </p>
+
+              <p>
+                Order Status:
+                <strong
+                  className={`ml-2 capitalize ${statusColor}`}
+                >
+                  {detail.order_status ||
+                    "pending"}
+                </strong>
+              </p>
+
+              <p>
+                Date:
+                <strong className="ml-2">
+                  {formattedDate}
+                </strong>
+              </p>
+
+              <p>
+                Time:
+                <strong className="ml-2">
+                  {formattedTime}
+                </strong>
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Footer */}
+        <div className="border-t mt-8 pt-6">
+
+          <p className="text-gray-600">
+            This order was submitted by{" "}
+            <strong>
+              {detail.customer_name}
+            </strong>{" "}
+            and is currently marked as{" "}
+            <strong
+              className={`capitalize ${statusColor}`}
+            >
+              {detail.order_status ||
+                "pending"}
+            </strong>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default OrderDetails;

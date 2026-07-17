@@ -71,6 +71,10 @@ const { data, error } = await supabase
     },
   ])
   .select();
+
+      console.log(data)
+      console.log(error)
+
       if (error) throw error;
 
       console.log("Order Saved:", data);
