@@ -59,7 +59,7 @@ const Navbar = () => {
               </NavLink>
             ))}
           </div>
-          <Link to='/admin' className="hidden px-4 py-1 border border-black/70 rounded-md text-[24px] ">
+          <Link to='/admin' className=" px-4 py-1 border border-black/70 rounded-md text-[24px] ">
              Admin
           </Link>
 
